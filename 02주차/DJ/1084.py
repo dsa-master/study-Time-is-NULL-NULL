@@ -39,9 +39,8 @@ def solve(nNumbers: int, numberPrices: typing.List[int], budget: int) -> None:
     numberByPrices: typing.List[int] = list(sorted(range(nNumbers), key=lambda num: numberPrices[num] * 11 + -num))
 
     # 2. buy cheapest
-    buyableAmount = int(fractions.Fraction(budget, numberPrices[numberByPrices[0]]))
-
-    numberCounts[numberByPrices[0]] = math.floor(buyableAmount)
+    buyableAmount = math.floor(fractions.Fraction(budget, numberPrices[numberByPrices[0]]))
+    numberCounts[numberByPrices[0]] = buyableAmount
     budget -= numberPrices[numberByPrices[0]] * buyableAmount
 
     # 3. if the cheapest number is zero, try to buy at least one non-zero number
