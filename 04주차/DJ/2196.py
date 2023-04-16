@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import collections
 import sys
 import typing
@@ -17,19 +15,19 @@ def count_bit(x: int) -> int:
     return cnt
 
 
-def simillarity(x:int , y: int) -> int:
-    """숫자의 가까운 정도"""
+def distance(x:int , y: int) -> int:
     return count_bit(x ^ y)
 
 
-def solve(binary: int, numbers: typing.List[int]):
-    numbers.append(0)
+def solve(ndigits:int, binary: int, numbers: typing.Tuple[int]):
     xor_counter: typing.List[int] = [0] * (NUMBERS)
+    queue: typing.Deque[int] = collections.deque()
 
-    # 0은 어떤 숫자로도 만들 수 있음 (자기자신과 XOR):
-    xor_counter[0] = 1
+    for x in numbers:
+        for y in numbers:
+            xor_counter[x^y] = 1
+            queue.append(x^y)
 
-    queue: typing.Deque[int] = collections.deque(numbers)
     while queue:
         x = queue.popleft()
         for y in numbers:
@@ -40,23 +38,26 @@ def solve(binary: int, numbers: typing.List[int]):
 
     # O(n)
     ans_num = 0
-    ans_sim = simillarity(binary, 0)
+    ans_dist = distance(binary, 0)
     for i in range(NUMBERS):
         if xor_counter[i] < 1:
             continue
-        num_sim = simillarity(binary, i)
-        if num_sim < ans_sim:
+        num_dist = distance(binary, i)
+        if num_dist < ans_dist:
             ans_num = i
-            ans_sim = num_sim
+            ans_dist = num_dist
 
-    return '\n'.join([str(xor_counter[ans_num]), bin(ans_num)[2:]])
+    return '\n'.join([
+        str(xor_counter[ans_num]),
+        bin(ans_num).lstrip('0b').zfill(ndigits)
+    ])
 
 
 def main():
     B, E = map(int, sys.stdin.readline().split())
     X = int(sys.stdin.readline(), base=2)
-    Y = list(map(lambda s: int(s, base=2), [sys.stdin.readline() for _ in range(E)]))
-    print(solve(X, Y))
+    Y = tuple(map(lambda s: int(s, base=2), [sys.stdin.readline() for _ in range(E)]))
+    print(solve(B, X, Y))
 
 
 if __name__ == '__main__':
