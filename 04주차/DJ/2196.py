@@ -1,83 +1,54 @@
 from __future__ import annotations
 
 import collections
-import heapq
 import sys
 import typing
 
 
-def count_diff(x:int , y: int) -> int:
-    """서로 다른 비트의 개수"""
-    b = x ^ y
+def count_bit(x: int) -> int:
     cnt = 0
-    while b > 0:
-        if b & 1:
+    while x > 0:
+        if x & 1:
             cnt += 1
-        b >>= 1
+        x >>= 1
     return cnt
 
 
-class Node:
-    def __init__(self, number: int, xor_count: int, target: int) -> None:
-        self.number = number
-        self.xor_count = xor_count
-        self.diff = count_diff(target, number)
-        self.visited = False
-
-    def __lt__(self, o: Node) -> bool:
-        if self.diff != o.diff:
-            return self.diff < o.diff
-        if self.xor_count != o.xor_count:
-            return self.xor_count < o.xor_count
-        return self.number < o.number
-
-    def __hash__(self) -> int:
-        return self.number
-
-    def __str__(self) -> str:
-        return bin(self.number).lstrip('0b')
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-    def do_xor(self, o: Node, target: int) -> Node:
-        return Node(self.number ^ o.number, self.xor_count + o.xor_count + 1, target)
+def simillarity(x:int , y: int) -> int:
+    """숫자의 가까운 정도"""
+    return count_bit(x ^ y)
 
 
-def solve(target: int, numbers: typing.List[int]) -> Node:
-    pq: typing.List[Node] = []
-    _pq: typing.List[Node] = []
-    nodes: typing.Dict[int, Node] = {}
-    for num in numbers:
-        nodes[num] = Node(num, 0, target)
-        heapq.heappush(pq, nodes[num])
-    while True:
-        if not pq:
-            if not _pq:
-                break
-            pq, _pq = _pq, pq
-            for x in pq:
-                nodes[x.number] = x
-        x = heapq.heappop(pq)
-        if x.visited:
-            continue
-        x.visited = True
-        for y in tuple(nodes.values()):
-            if (x.number ^ y.number) in nodes:
+def solve(binary: int, numbers: typing.Iterable[int]):
+    xor_counter: typing.Dict[int, int] = { num: 0 for num in numbers }
+
+    # 0은 어떤 숫자로도 만들 수 있음 (자기자신과 XOR):
+    xor_counter[0] = 1
+
+    ans_num = 0
+    ans_sim = simillarity(binary, ans_num)
+
+    queue: typing.Deque[int] = collections.deque(xor_counter.keys())
+    while queue:
+        x = queue.popleft()
+        for y in list(xor_counter):
+            z = x ^ y
+            if z in xor_counter:
                 continue
-            heapq.heappush(_pq, x.do_xor(y, target))
-    return sorted(nodes.values())[0]
+            xor_counter[z] = xor_counter[x] + xor_counter[y] + 1
+            queue.append(z)
+            z_sim = simillarity(binary, z)
+            if xor_counter[z] > 0 and ans_sim > z_sim or ans_sim == z_sim and z < ans_num:
+                ans_num = z
+                ans_sim = z_sim
+    return '\n'.join([str(xor_counter[ans_num]), bin(ans_num).lstrip('0b')])
 
 
 def main():
     B, E = map(int, sys.stdin.readline().split())
-    target = int(sys.stdin.readline(), base=2)
-    numbers = []
-    for i in range(E):
-        numbers.append(int(sys.stdin.readline(), base=2))
-    node = solve(target, numbers)
-    print(node.xor_count)
-    print(node)
+    X = int(sys.stdin.readline(), base=2)
+    Y = map(lambda s: int(s, base=2), [sys.stdin.readline() for _ in range(E)])
+    print(solve(X, Y))
 
 
 if __name__ == '__main__':
