@@ -22,42 +22,31 @@ def simillarity(x:int , y: int) -> int:
     return count_bit(x ^ y)
 
 
-def solve(binary: int, numbers: typing.Iterable[int]):
-    xor_counter: typing.List[int] = [-1] * NUMBERS
-    known_numbers: typing.List[int] = [0]
+def solve(binary: int, numbers: typing.Tuple[int]):
+    xor_counter: typing.List[int] = [0] * NUMBERS
 
     # 0은 어떤 숫자로도 만들 수 있음 (자기자신과 XOR):
     xor_counter[0] = 1
 
-    # O(n)
-    for n in numbers:
-        xor_counter[n] = 0
-        known_numbers.append(n)
-
-    # O(n^2?)
-    queue: typing.Deque[int] = collections.deque(known_numbers)
+    queue: typing.Deque[int] = collections.deque(numbers)
     while queue:
         x = queue.popleft()
-        for y in known_numbers:
+        for y in numbers:
             z = x ^ y
-            if xor_counter[z] != -1:
+            if xor_counter[z] != 0:
                 continue
-            xor_counter[z] = xor_counter[x] + xor_counter[y] + 1
+            xor_counter[z] = xor_counter[x] + 1
             queue.append(z)
-            known_numbers.append(z)
-
-    # O(n log n)
-    known_numbers.sort() # 사전 순 정렬
 
     # O(n)
-    ans_num = known_numbers[0]
-    ans_sim = simillarity(binary, known_numbers[0])
-    for num in known_numbers:
-        if xor_counter[num] <= 0:
+    ans_num = 0
+    ans_sim = simillarity(binary, 0)
+    for i in range(NUMBERS):
+        if xor_counter[i] < 1:
             continue
-        num_sim = simillarity(binary, num)
+        num_sim = simillarity(binary, i)
         if num_sim < ans_sim:
-            ans_num = num
+            ans_num = i
             ans_sim = num_sim
 
     return '\n'.join([str(xor_counter[ans_num]), bin(ans_num).lstrip('0b')])
@@ -66,7 +55,7 @@ def solve(binary: int, numbers: typing.Iterable[int]):
 def main():
     B, E = map(int, sys.stdin.readline().split())
     X = int(sys.stdin.readline(), base=2)
-    Y = map(lambda s: int(s, base=2), [sys.stdin.readline() for _ in range(E)])
+    Y = tuple(map(lambda s: int(s, base=2), [sys.stdin.readline() for _ in range(E)]))
     print(solve(X, Y))
 
 
