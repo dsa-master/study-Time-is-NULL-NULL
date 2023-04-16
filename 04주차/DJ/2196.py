@@ -24,7 +24,7 @@ def simillarity(x:int , y: int) -> int:
 
 def solve(binary: int, numbers: typing.List[int]):
     numbers.append(0)
-    xor_counter: typing.List[int] = [0] * NUMBERS
+    xor_counter: typing.List[int] = [0] * (NUMBERS)
 
     # 0은 어떤 숫자로도 만들 수 있음 (자기자신과 XOR):
     xor_counter[0] = 1
@@ -49,7 +49,7 @@ def solve(binary: int, numbers: typing.List[int]):
             ans_num = i
             ans_sim = num_sim
 
-    return '\n'.join([str(xor_counter[ans_num]), bin(ans_num).lstrip('0b')])
+    return '\n'.join([str(xor_counter[ans_num]), bin(ans_num)[2:]])
 
 
 def main():
@@ -60,6 +60,4 @@ def main():
 
 
 if __name__ == '__main__':
-    T = int(sys.stdin.readline())
-    for t in range(T):
-        main()
+    main()
