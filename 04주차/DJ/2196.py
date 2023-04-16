@@ -22,7 +22,8 @@ def simillarity(x:int , y: int) -> int:
     return count_bit(x ^ y)
 
 
-def solve(binary: int, numbers: typing.Tuple[int]):
+def solve(binary: int, numbers: typing.List[int]):
+    numbers.append(0)
     xor_counter: typing.List[int] = [0] * NUMBERS
 
     # 0은 어떤 숫자로도 만들 수 있음 (자기자신과 XOR):
@@ -33,10 +34,9 @@ def solve(binary: int, numbers: typing.Tuple[int]):
         x = queue.popleft()
         for y in numbers:
             z = x ^ y
-            if xor_counter[z] != 0:
-                continue
-            xor_counter[z] = xor_counter[x] + 1
-            queue.append(z)
+            if xor_counter[z] == 0:
+                xor_counter[z] = xor_counter[x] + 1
+                queue.append(z)
 
     # O(n)
     ans_num = 0
@@ -55,9 +55,11 @@ def solve(binary: int, numbers: typing.Tuple[int]):
 def main():
     B, E = map(int, sys.stdin.readline().split())
     X = int(sys.stdin.readline(), base=2)
-    Y = tuple(map(lambda s: int(s, base=2), [sys.stdin.readline() for _ in range(E)]))
+    Y = list(map(lambda s: int(s, base=2), [sys.stdin.readline() for _ in range(E)]))
     print(solve(X, Y))
 
 
 if __name__ == '__main__':
-    main()
+    T = int(sys.stdin.readline())
+    for t in range(T):
+        main()
