@@ -5,6 +5,9 @@ import sys
 import typing
 
 
+NUMBERS = 65536
+
+
 def count_bit(x: int) -> int:
     cnt = 0
     while x > 0:
@@ -20,27 +23,43 @@ def simillarity(x:int , y: int) -> int:
 
 
 def solve(binary: int, numbers: typing.Iterable[int]):
-    xor_counter: typing.Dict[int, int] = { num: 0 for num in numbers }
+    xor_counter: typing.List[int] = [-1] * NUMBERS
+    known_numbers: typing.List[int] = [0]
 
     # 0은 어떤 숫자로도 만들 수 있음 (자기자신과 XOR):
     xor_counter[0] = 1
 
-    ans_num = 0
-    ans_sim = simillarity(binary, ans_num)
+    # O(n)
+    for n in numbers:
+        xor_counter[n] = 0
+        known_numbers.append(n)
 
-    queue: typing.Deque[int] = collections.deque(xor_counter.keys())
+    # O(n^2?)
+    queue: typing.Deque[int] = collections.deque(known_numbers)
     while queue:
         x = queue.popleft()
-        for y in list(xor_counter):
+        for y in known_numbers:
             z = x ^ y
-            if z in xor_counter:
+            if xor_counter[z] != -1:
                 continue
             xor_counter[z] = xor_counter[x] + xor_counter[y] + 1
             queue.append(z)
-            z_sim = simillarity(binary, z)
-            if xor_counter[z] > 0 and ans_sim > z_sim or ans_sim == z_sim and z < ans_num:
-                ans_num = z
-                ans_sim = z_sim
+            known_numbers.append(z)
+
+    # O(n log n)
+    known_numbers.sort() # 사전 순 정렬
+
+    # O(n)
+    ans_num = known_numbers[0]
+    ans_sim = simillarity(binary, known_numbers[0])
+    for num in known_numbers:
+        if xor_counter[num] <= 0:
+            continue
+        num_sim = simillarity(binary, num)
+        if num_sim < ans_sim:
+            ans_num = num
+            ans_sim = num_sim
+
     return '\n'.join([str(xor_counter[ans_num]), bin(ans_num).lstrip('0b')])
 
 
