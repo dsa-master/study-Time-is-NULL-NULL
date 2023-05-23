@@ -1,17 +1,11 @@
-import sys
-
-sys.setrecursionlimit(int(5e6)+32)
-
-
-def f(n, k):
-    if n == 1:
-        return 1
-    return ((f(n-1, k) + k - 1) % n) + 1
-
-
 def main():
     N, K = map(int, input().split())
-    print(f(N, K))
+
+    ans = 1
+    for n in range(1, N+1):
+        ans = ((ans + K-1) % n) + 1
+
+    print(ans)
 
 
 if __name__ == '__main__':
